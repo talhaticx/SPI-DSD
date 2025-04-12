@@ -1,0 +1,70 @@
+# === Build Artifacts ===
+*.o
+*.vvp
+*.vcd
+*.vcd~
+*.vcd.*
+*.out
+*.log
+*.cmd
+*.bak
+*.dmp
+*.jou
+*.pb
+*.tcl
+*.swp
+*.wlf
+*.vstf
+*.ucdb
+*.mr
+*.err
+*.ini
+*.svf
+*.hld
+
+# === QuestaSim / ModelSim ===
+work/
+build/
+transcript
+vsim.wlf
+*.vst
+*.vcd
+*.db
+*.ncvlog
+*.ncsim
+*.ncelab
+*.sim
+*.shm
+*.svcf
+
+# === GTKWave ===
+gtkwave.gtkw
+*.sav
+
+# === OS/System Files ===
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.swp
+
+# === Python Helpers (if any scripts used) ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# === VSCode or IDEs ===
+.vscode/
+.idea/
+
+# === Temporary Files ===
+*~
+*.tmp
+*.temp
+*.backup
+*.old
+
+# === Custom ===
+dump.vcd
+wave.vcd
+*.vcd.*
