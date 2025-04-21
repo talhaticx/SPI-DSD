@@ -1,0 +1,116 @@
+<mxfile host="65bd71144e">
+    <diagram id="Qzo7WluZ00U4ASzI4yej" name="Page-1">
+        <mxGraphModel dx="914" dy="1648" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#007FFF;" edge="1" parent="1" source="5" target="9">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;active = 1&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;done = X&lt;/span&gt;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;&amp;nbsp;/ CS = 1&lt;/span&gt;&lt;div&gt;Data={}&lt;/div&gt;&lt;div&gt;DataSize=0&lt;/div&gt;&lt;div&gt;Transfer=0&lt;/div&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="2">
+                    <mxGeometry x="0.061" y="-1" relative="1" as="geometry">
+                        <mxPoint x="-48" y="20" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5" value="&lt;font face=&quot;Comic Sans MS&quot;&gt;IDLE&lt;/font&gt;&lt;div&gt;&lt;font face=&quot;Comic Sans MS&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Comic Sans MS&quot;&gt;S0&lt;/font&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#99FFCC;" vertex="1" parent="1">
+                    <mxGeometry x="165" y="-721" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;curved=1;strokeColor=#FF0000;" edge="1" parent="1" source="9" target="5">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="460" y="-750"/>
+                            <mxPoint x="205" y="-750"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="7" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;curved=1;strokeColor=#007FFF;" edge="1" parent="1" source="9" target="14">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;active = 1&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;done = 1&lt;/span&gt;&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;/ CS = 1&lt;/span&gt;&lt;div&gt;Data={}&lt;/div&gt;&lt;div&gt;DataSize=0&lt;/div&gt;&lt;div&gt;Transfer=0&lt;/div&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="7">
+                    <mxGeometry x="0.066" y="-1" relative="1" as="geometry">
+                        <mxPoint x="1" y="-10" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="9" value="&lt;font face=&quot;Comic Sans MS&quot;&gt;ACTIVE&lt;/font&gt;&lt;br&gt;&lt;div&gt;&lt;font face=&quot;Comic Sans MS&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Comic Sans MS&quot;&gt;S1&lt;/font&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#99FFCC;" vertex="1" parent="1">
+                    <mxGeometry x="420" y="-721" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;strokeColor=#007FFF;curved=1;" edge="1" parent="1" source="14" target="9">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="245" y="-500" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="390" y="-450"/>
+                            <mxPoint x="390" y="-653"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="11" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;active = 1&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;done = 1&lt;/span&gt;&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;/ CS = 1&lt;/span&gt;&lt;div&gt;Data={&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;}&lt;/span&gt;&lt;/div&gt;&lt;div&gt;DataSize=0&lt;/div&gt;&lt;div&gt;Transfer=0&lt;/div&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="10">
+                    <mxGeometry x="0.1105" y="2" relative="1" as="geometry">
+                        <mxPoint x="-48" y="43" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="12" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;curved=1;strokeColor=#FF0000;" edge="1" parent="1" source="14" target="5">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="560" y="-560" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="680" y="-450"/>
+                            <mxPoint x="680" y="-820"/>
+                            <mxPoint x="205" y="-820"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="13" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;active = 0&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;done = X&lt;/span&gt;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;&amp;nbsp;/ CS = 1&lt;/span&gt;&lt;div&gt;Data={}&lt;/div&gt;&lt;div&gt;DataSize=0&lt;/div&gt;&lt;div&gt;Transfer=0&lt;/div&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="12">
+                    <mxGeometry x="-0.2963" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="14" value="&lt;font face=&quot;Comic Sans MS&quot;&gt;TRANSFER&lt;/font&gt;&lt;div&gt;&lt;font face=&quot;Comic Sans MS&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font face=&quot;Comic Sans MS&quot;&gt;S2&lt;/font&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#99FFCC;" vertex="1" parent="1">
+                    <mxGeometry x="420" y="-490" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.025;exitY=0.579;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitPerimeter=0;curved=1;strokeColor=#FF0000;" edge="1" parent="1" source="5" target="5">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="160" y="-681.0000000000001" as="sourcePoint"/>
+                        <mxPoint x="200" y="-721.0000000000001" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="130" y="-675"/>
+                            <mxPoint x="130" y="-750"/>
+                            <mxPoint x="205" y="-750"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="16" value="active = 0&lt;div&gt;done = X&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;&amp;nbsp;/ CS = 1&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;Data={}&lt;/div&gt;&lt;div&gt;DataSize=0&lt;/div&gt;&lt;div&gt;Transfer=0&lt;/div&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="15">
+                    <mxGeometry x="-0.1236" y="1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="17" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-size: 11px; background-color: rgb(255, 255, 255);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;active = 0&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;background-color: light-dark(rgb(255, 255, 255), rgb(18, 18, 18));&quot;&gt;done = X&lt;/span&gt;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-size: 11px; background-color: rgb(255, 255, 255);&quot;&gt;/ CS = 1&lt;/span&gt;&lt;div style=&quot;font-size: 11px;&quot;&gt;Data={}&lt;/div&gt;&lt;div style=&quot;font-size: 11px;&quot;&gt;DataSize=0&lt;/div&gt;&lt;div style=&quot;font-size: 11px;&quot;&gt;Transfer=0&lt;/div&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="315" y="-800" width="80" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;curved=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="9" target="9">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="520" y="-730" as="sourcePoint"/>
+                        <Array as="points">
+                            <mxPoint x="560" y="-770"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="19" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;active = 1&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;&quot;&gt;done = 0&lt;/span&gt;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;&amp;nbsp;/ CS = 0&lt;/span&gt;&lt;div&gt;Data={0x0A, 0x2D, 0x02}&lt;/div&gt;&lt;div&gt;DataSize=3&lt;/div&gt;&lt;div&gt;Transfer=1&lt;/div&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fillColor=default;shadow=1;labelBackgroundColor=none;" vertex="1" connectable="0" parent="18">
+                    <mxGeometry x="-0.4957" y="10" relative="1" as="geometry">
+                        <mxPoint x="-3" y="-17" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="20" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;curved=1;" edge="1" parent="1" source="14" target="14">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="590" y="-290"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="21" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;active = 1&lt;br&gt;&lt;/span&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;done = 0&lt;/span&gt;&amp;nbsp;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;/ CS = 0&lt;/span&gt;&lt;div&gt;Data={0x0B, 0x08,&amp;nbsp;&lt;/div&gt;&lt;div&gt;0x00, 0x00, 0x00}&lt;/div&gt;&lt;div&gt;DataSize=5&lt;/div&gt;&lt;div&gt;Transfer=1&lt;/div&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="20">
+                    <mxGeometry x="-0.4905" y="-7" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
