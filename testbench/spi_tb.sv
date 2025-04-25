@@ -21,7 +21,7 @@ end
 // Monitor signal changes
 initial begin
     // Open VCD file to dump the values
-    $dumpfile("dump.vcd"); // File where data will be saved
+    $dumpfile("build/wave.vcd"); // File where data will be saved
     $dumpvars(0, clk, rst, data); // Dump these signals
 
     // Initialize reset
