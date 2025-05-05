@@ -1,9 +1,277 @@
-//sample
+// counter Module
 
-module spi(input logic clk, input logic rst, output logic out);
-  always_ff @(posedge clk or posedge rst)
-    if (rst)
-      out <= 0;
-    else
-      out <= ~out;
+module counter (
+    input logic clk,        // Clock input
+    input logic rst,      // Active low reset
+    output logic [2:0] count // 3-bit counter output (counting from 0 to 5)
+);
+
+    logic [2:0] cycle_count; // 3-bit counter to count 8 cycles
+
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) begin
+            cycle_count <= 3'b0; // Reset cycle counter
+            count <= 3'b0;        // Reset byte counter
+        end
+        else begin
+            if (cycle_count == 7) begin // After 8 cycles (counting from 0 to 7)
+                cycle_count <= 3'b0;  // Reset cycle counter
+                count <= count + 1;    // Increment byte counter
+            end
+            else begin
+                cycle_count <= cycle_count + 1; // Increment cycle counter
+            end
+
+        end
+    end
+
+endmodule
+
+
+// clk_div Module
+
+module clk_div (
+    input  logic clk_100mhz, // Input clock: 100 MHz (period = 10 ns)
+    output logic clk_5mhz    // Output clock: 5 MHz (period = 200 ns)
+);
+
+    // ====== Calculations ======
+    // 
+    // Input freq:      100 MHz → period = 1 / 100e6 = 10 ns
+    // Desired output:    5 MHz → period = 1 / 5e6   = 200 ns
+    //
+    // To go from 100 MHz to 5 MHz, we need to divide frequency by:
+    //      100 MHz / 5 MHz = 20
+    //
+    // That means the output clock should toggle every 10 input clock cycles.
+    // Because one full period requires a HIGH and a LOW phase:
+    //      Toggle every 10 cycles → Full cycle = 20 cycles → 200 ns
+
+    logic [3:0] counter; // 4 bits = can count up to 15 → enough for counting up to 10
+
+    always_ff @(posedge clk_100mhz) begin
+        if (counter == 9) begin
+            counter   <= 0;         // Reset counter after 10 cycles
+            clk_5mhz  <= ~clk_5mhz; // Toggle output clock (flip HIGH/LOW)
+        end
+        else begin
+            counter <= counter + 1; // Increment counter each clk_100mhz tick
+        end
+    end
+
+endmodule
+
+
+// fsm Module
+
+module fsm (
+    input logic sclk,           // Clock input
+    input logic power,         // Power switch
+    input logic done,          // Done signal from SPI transfer
+
+    output logic [1:0] data_select, // SPI command selector
+    output logic transfer,     // SPI transfer enable (MOSI)
+    output logic receive,      // SPI receive enable (MISO)
+    output logic cs,           // Chip select (Active LOW)
+    output logic [2:0] data_size // Data size (number of bytes)
+);
+
+    // fsm State Encoding
+    typedef enum logic [2:0] { 
+        IDLE,                // 000
+        MEASUREMENT_MODE,    // 001
+        SEND,                // 010
+        RECEIVE,             // 011
+        SOFT_RST             // 100
+    } state_t;
+
+    state_t current_state, next_state;
+
+    // Internal CS control signal
+    logic cs_internal;
+
+    // Next State Logic
+    always_comb begin
+        next_state = current_state; // Default
+
+        case (current_state)
+
+            IDLE: begin
+                if (power)
+                    next_state = MEASUREMENT_MODE;
+                else
+                    next_state = IDLE;
+            end
+
+            MEASUREMENT_MODE: begin
+                if (!power)
+                    next_state = SOFT_RST;
+                else if (done)
+                    next_state = SEND;
+            end
+
+            SEND: begin
+                if (!power)
+                    next_state = SOFT_RST;
+                else if (done)
+                    next_state = RECEIVE;
+            end
+
+            RECEIVE: begin
+                if (!power)
+                    next_state = SOFT_RST;
+                else if (done)
+                    next_state = SEND;
+            end
+
+            SOFT_RST: begin
+                if (done)
+                    next_state = IDLE;
+            end
+
+        endcase
+    end
+
+    // State Register Update
+    always_ff @(posedge sclk) begin
+        current_state <= next_state;
+    end
+
+    // CS Signal Handling
+    always_ff @(posedge sclk) begin
+        if (current_state == MEASUREMENT_MODE && done)
+            cs_internal <= 1;    // Deassert CS after measurement command done
+        else if (current_state == SEND && done)
+            cs_internal <= 0;    // Reassert CS before send
+        else if (current_state == SOFT_RST)
+            cs_internal <= ~cs_internal; // Toggle CS in Soft Reset
+        else if (current_state == IDLE)
+            cs_internal <= 1;    // Default CS high in idle
+    end
+
+    assign cs = cs_internal;
+
+    // Output Logic
+    always_comb begin
+        // Default values
+        data_select = 2'b00;
+        transfer = 0;
+        receive = 0;
+        data_size = 3'd0;
+
+        case (current_state)
+
+            IDLE: begin
+                data_select = 2'b00;
+                transfer = 0;
+                receive = 0;
+                data_size = 3'd0;
+            end
+
+            MEASUREMENT_MODE: begin
+                data_select = 2'b01;
+                transfer = 1;
+                receive = 0;
+                data_size = 3'd3;
+            end
+
+            SEND: begin
+                data_select = 2'b10;
+                transfer = 1;
+                receive = 0;
+                data_size = 3'd2;
+            end
+
+            RECEIVE: begin
+                data_select = 2'b00; // Dummy data (0x00)
+                transfer = 1;
+                receive = 1;
+                data_size = 3'd3;
+            end
+
+            SOFT_RST: begin
+                data_select = 2'b11;
+                transfer = 1;
+                receive = 0;
+                data_size = 3'd3;
+            end
+
+        endcase
+    end
+
+endmodule
+
+// Remove above after coding
+
+module spi(
+  input logic power_btn,
+  input logic clk,
+
+  // Master in Slave out
+  input logic miso,
+  
+  // Mater out Slave in, Chip Select
+  output logic mosi, cs,
+
+  // Serial Clock
+  output sclk
+);
+
+  logic done, transfer, receive;
+  logic [1:0] data_select;
+  logic [2:0] data_size;
+
+  logic [2:0] byte_counter;
+
+  logic [7:0] data_set [0:3][0:2]; // Max 3 bytes per set
+
+  initial begin
+      data_set[0] = '{8'h00, 8'h00, 8'h00};
+      data_set[1] = '{8'h0A, 8'h2D, 8'h02};
+      data_set[2] = '{8'h0B, 8'h08, 8'h00};
+      data_set[3] = '{8'h0A, 8'h1F, 8'h52};
+  end
+
+
+  logic temp; // ========================temp================================
+
+  // sclk is used as output so, sclk_inner will be used for the interior purposes
+  logic sclk_inner;
+
+  // Instantiation of clk_div Module
+  clk_div divider(
+    .clk_100mhz(clk),
+    .clk_5mhz(sclk_inner)
+  );
+
+  // Instantiation of fsm Module
+  fsm control_unit(
+    .sclk(sclk_inner),
+    .power(power_btn),
+    .done(done),
+
+    .transfer(transfer),
+    .receive(receive),
+    .data_select(data_select),
+    .data_size(data_size),
+
+    .cs(cs)
+  );
+
+  counter counter(
+    .clk(sclk_inner),
+    .rst(temp),  // ========================temp================================
+    .count(byte_counter)
+  );
+
+  // done variable logic
+  always_ff @(posedge sclk_inner) begin
+      done <= (byte_counter >= data_size) ? 1'b1 : 1'b0;
+  end
+
+  // sclk output
+  always_ff @(posedge clk) begin
+      sclk <= sclk_inner;
+  end
+
 endmodule
