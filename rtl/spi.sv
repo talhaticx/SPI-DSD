@@ -204,74 +204,93 @@ endmodule
 // Remove above after coding
 
 module spi(
-  input logic power_btn,
-  input logic clk,
+    input logic power_btn,
+    input logic clk,
 
-  // Master in Slave out
-  input logic miso,
-  
-  // Mater out Slave in, Chip Select
-  output logic mosi, cs,
+    // Master in Slave out
+    input logic miso,
 
-  // Serial Clock
-  output sclk
+    // Mater out Slave in, Chip Select
+    output logic mosi, cs,
+
+    // Serial Clock
+    output sclk
 );
 
-  logic done, transfer, receive;
-  logic [1:0] data_select;
-  logic [2:0] data_size;
+    logic done, transfer, receive;
+    logic [1:0] data_select;
+    logic [2:0] data_size;
 
-  logic [2:0] byte_counter;
+    logic [2:0] byte_counter;
 
-  logic [7:0] data_set [0:3][0:2]; // Max 3 bytes per set
+    logic byte_counter_rst;
 
-  initial begin
-      data_set[0] = '{8'h00, 8'h00, 8'h00};
-      data_set[1] = '{8'h0A, 8'h2D, 8'h02};
-      data_set[2] = '{8'h0B, 8'h08, 8'h00};
-      data_set[3] = '{8'h0A, 8'h1F, 8'h52};
-  end
+    logic transfer_prev;
+
+    logic transfer_posedge;
 
 
-  logic temp; // ========================temp================================
+    logic [7:0] data_set [0:3][0:2]; // Max 3 bytes per set
 
-  // sclk is used as output so, sclk_inner will be used for the interior purposes
-  logic sclk_inner;
+    initial begin
+        data_set[0] = '{8'h00, 8'h00, 8'h00};
+        data_set[1] = '{8'h0A, 8'h2D, 8'h02};
+        data_set[2] = '{8'h0B, 8'h08, 8'h00};
+        data_set[3] = '{8'h0A, 8'h1F, 8'h52};
+    end
 
-  // Instantiation of clk_div Module
-  clk_div divider(
-    .clk_100mhz(clk),
-    .clk_5mhz(sclk_inner)
-  );
 
-  // Instantiation of fsm Module
-  fsm control_unit(
-    .sclk(sclk_inner),
-    .power(power_btn),
-    .done(done),
+    logic temp; // ========================temp================================
 
-    .transfer(transfer),
-    .receive(receive),
-    .data_select(data_select),
-    .data_size(data_size),
+    // sclk is used as output so, sclk_inner will be used for the interior purposes
+    logic sclk_inner;
 
-    .cs(cs)
-  );
+    // Instantiation of clk_div Module
+    clk_div divider(
+        .clk_100mhz(clk),
+        .clk_5mhz(sclk_inner)
+    );
 
-  counter counter(
-    .clk(sclk_inner),
-    .rst(temp),  // ========================temp================================
-    .count(byte_counter)
-  );
+    // Instantiation of fsm Module
+    fsm control_unit(
+        .sclk(sclk_inner),
+        .power(power_btn),
+        .done(done),
 
-  // done variable logic
-  always_ff @(posedge sclk_inner) begin
-      done <= (byte_counter >= data_size) ? 1'b1 : 1'b0;
-  end
+        .transfer(transfer),
+        .receive(receive),
+        .data_select(data_select),
+        .data_size(data_size),
 
-  // sclk output
-  always_ff @(posedge clk) begin
-      sclk <= sclk_inner;
-  end
+        .cs(cs)
+    );
+
+    counter counter(
+        .clk(sclk_inner),
+        .rst(byte_counter_rst),
+        .count(byte_counter)
+    );
+
+    // byte_counter_rst logic
+    assign transfer_posedge = (transfer && !transfer_prev);
+
+    always_ff @(posedge clk) begin
+        transfer_prev <= transfer;
+
+        if (transfer_posedge)
+            byte_counter_rst <= 1;
+        else
+            byte_counter_rst <= 0;
+    end
+
+    // done variable logic
+    always_ff @(posedge sclk_inner) begin
+        done <= (byte_counter >= data_size) ? 1'b1 : 1'b0;
+    end
+
+    // sclk output
+    always_ff @(posedge clk) begin
+        sclk <= sclk_inner;
+    end
 
 endmodule
