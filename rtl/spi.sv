@@ -20,6 +20,9 @@ module spi(
 
     logic [7:0] current_byte;
     logic       piso_rst, piso_load;
+    logic       sipo_rst;
+
+    logic [7:0] temp;
 
     logic [7:0] shift_reg;
     logic [1:0] data_size [3:0];
@@ -30,6 +33,7 @@ module spi(
         data_set[1] = '{8'h0A, 8'h2D, 8'h02}; // Set range
         data_set[2] = '{8'h0B, 8'h08, 8'h00}; // Disable FIFO (2-byte)
         data_set[3] = '{8'h0A, 8'h1F, 8'h52}; // Measurement mode
+
         data_size[0] = 3;
         data_size[1] = 3;
         data_size[2] = 2;
@@ -70,6 +74,15 @@ module spi(
         .mosi(mosi)
     );
 
+    // === SIPO Shift Register ===
+    sipo sipo_module(
+        .clk(sclk),
+        .rst(sipo_rst),
+        .miso(miso),
+        .shift_en(receive),
+        .data_out(temp)
+    );
+
     // === Transfer Edge Detection ===
     always_ff @(posedge sclk) begin
         transfer_prev <= transfer;
@@ -89,6 +102,9 @@ module spi(
     // === PISO Control ===
     assign piso_load = transfer_posedge;
     assign piso_rst  = ~transfer;
+
+    // === SIPO Control ===
+    assign sipo_rst  = ~receive;
 
     // === Byte Counter Reset ===
     always_ff @(posedge sclk) begin
