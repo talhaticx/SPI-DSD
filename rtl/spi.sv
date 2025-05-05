@@ -72,8 +72,8 @@ module fsm (
     output logic [1:0] data_select, // SPI command selector
     output logic transfer,     // SPI transfer enable (MOSI)
     output logic receive,      // SPI receive enable (MISO)
-    output logic cs,           // Chip select (Active LOW)
-    output logic [2:0] data_size // Data size (number of bytes)
+    output logic cs           // Chip select (Active LOW)
+    // output logic [2:0] data_size // Data size (number of bytes)
 );
 
     // fsm State Encoding
@@ -157,7 +157,7 @@ module fsm (
         data_select = 2'b00;
         transfer = 0;
         receive = 0;
-        data_size = 3'd0;
+        // data_size = 3'd0;
 
         case (current_state)
 
@@ -165,35 +165,35 @@ module fsm (
                 data_select = 2'b00;
                 transfer = 0;
                 receive = 0;
-                data_size = 3'd0;
+                // data_size = 3'd0;
             end
 
             MEASUREMENT_MODE: begin
                 data_select = 2'b01;
                 transfer = 1;
                 receive = 0;
-                data_size = 3'd3;
+                // data_size = 3'd3;
             end
 
             SEND: begin
                 data_select = 2'b10;
                 transfer = 1;
                 receive = 0;
-                data_size = 3'd2;
+                // data_size = 3'd2;
             end
 
             RECEIVE: begin
                 data_select = 2'b00; // Dummy data (0x00)
                 transfer = 1;
                 receive = 1;
-                data_size = 3'd3;
+                // data_size = 3'd3;
             end
 
             SOFT_RST: begin
                 data_select = 2'b11;
                 transfer = 1;
                 receive = 0;
-                data_size = 3'd3;
+                // data_size = 3'd3;
             end
 
         endcase
@@ -219,7 +219,7 @@ module spi(
 
     logic done, transfer, receive;
     logic [1:0] data_select;
-    logic [2:0] data_size;
+    // logic [2:0] data_size;
 
     logic [2:0] byte_counter;
 
@@ -235,10 +235,19 @@ module spi(
     initial begin
         data_set[0] = '{8'h00, 8'h00, 8'h00};
         data_set[1] = '{8'h0A, 8'h2D, 8'h02};
-        data_set[2] = '{8'h0B, 8'h08, 8'h00};
+        data_set[2] = '{8'h0B, 8'h08, 8'h00}; // only 2 bytes counted
         data_set[3] = '{8'h0A, 8'h1F, 8'h52};
     end
 
+
+    logic [1:0] data_size [3:0]; // valid bytes per set
+
+    initial begin
+        data_size[0] = 3;
+        data_size[1] = 3;
+        data_size[2] = 2; // only 2 bytes valid
+        data_size[3] = 3;
+    end
 
     logic temp; // ========================temp================================
 
@@ -260,7 +269,7 @@ module spi(
         .transfer(transfer),
         .receive(receive),
         .data_select(data_select),
-        .data_size(data_size),
+        // .data_size(data_size),
 
         .cs(cs)
     );
@@ -285,7 +294,7 @@ module spi(
 
     // done variable logic
     always_ff @(posedge sclk_inner) begin
-        done <= (byte_counter >= data_size) ? 1'b1 : 1'b0;
+        done <= (byte_counter >= data_size[data_select]) ? 1'b1 : 1'b0;
     end
 
     // sclk output

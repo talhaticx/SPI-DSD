@@ -6,8 +6,8 @@ module fsm (
     output logic [1:0] data_select, // SPI command selector
     output logic transfer,     // SPI transfer enable (MOSI)
     output logic receive,      // SPI receive enable (MISO)
-    output logic cs,           // Chip select (Active LOW)
-    output logic [1:0] data_size // Data size (number of bytes)
+    output logic cs           // Chip select (Active LOW)
+    // output logic [1:0] data_size // Data size (number of bytes)
 );
 
     // FSM State Encoding
@@ -91,7 +91,7 @@ module fsm (
         data_select = 2'b00;
         transfer = 0;
         receive = 0;
-        data_size = 2'd0;
+        // data_size = 2'd0;
 
         case (current_state)
 
@@ -99,35 +99,35 @@ module fsm (
                 data_select = 2'b00;
                 transfer = 0;
                 receive = 0;
-                data_size = 2'd0;
+                // data_size = 2'd0;
             end
 
             MEASUREMENT_MODE: begin
                 data_select = 2'b01;
                 transfer = 1;
                 receive = 0;
-                data_size = 2'd3;
+                // data_size = 2'd3;
             end
 
             SEND: begin
                 data_select = 2'b10;
                 transfer = 1;
                 receive = 0;
-                data_size = 2'd2;
+                // data_size = 2'd2;
             end
 
             RECEIVE: begin
                 data_select = 2'b00; // Dummy data (0x00)
                 transfer = 1;
                 receive = 1;
-                data_size = 2'd3;
+                // data_size = 2'd3;
             end
 
             SOFT_RST: begin
                 data_select = 2'b11;
                 transfer = 1;
                 receive = 0;
-                data_size = 2'd3;
+                // data_size = 2'd3;
             end
 
         endcase
