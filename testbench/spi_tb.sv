@@ -31,7 +31,7 @@ module spi_tb;
     end
 
     // Instantiate the SPI module
-    spi uut (
+    spi_master uut (
         .power_btn(power_btn),
         .clk(clk),
         .miso(miso),

@@ -1,4 +1,4 @@
-module spi(
+module spi_master(
     input  logic       power_btn, // Power control button
     input  logic       clk,       // 100MHz main clock
     input  logic       miso,      // MISO - Master In Slave Out
@@ -22,8 +22,6 @@ module spi(
     logic       piso_rst, piso_load;
     logic       sipo_rst;
 
-    logic [7:0] temp;
-
     logic [7:0] shift_reg;
     logic [1:0] data_size [3:0];
     logic [7:0] data_set [0:3][0:2]; // 3-byte max per command
@@ -39,6 +37,10 @@ module spi(
         data_size[2] = 2;
         data_size[3] = 3;
     end
+
+    // ==================================================
+    //                  Transfer Logic
+    // ==================================================
 
     // === Clock Divider ===
     clk_div divider(
@@ -74,15 +76,6 @@ module spi(
         .mosi(mosi)
     );
 
-    // === SIPO Shift Register ===
-    sipo sipo_module(
-        .clk(sclk),
-        .rst(sipo_rst),
-        .miso(miso),
-        .shift_en(receive),
-        .data_out(temp)
-    );
-
     // === Transfer Edge Detection ===
     always_ff @(posedge sclk) begin
         transfer_prev <= transfer;
@@ -103,9 +96,6 @@ module spi(
     assign piso_load = transfer_posedge;
     assign piso_rst  = ~transfer;
 
-    // === SIPO Control ===
-    assign sipo_rst  = ~receive;
-
     // === Byte Counter Reset ===
     always_ff @(posedge sclk) begin
         if (!transfer)
@@ -121,5 +111,51 @@ module spi(
     always_ff @(posedge clk) begin
         done_synced <= done;
     end
+
+    // ==================================================
+    //                  Receive Logic
+    // ==================================================
+
+    // === Received Data Registers ===
+    logic [7:0] received_byte0;
+    logic [7:0] received_byte1;
+    logic [7:0] received_byte2;
+    logic       byte_received;
+
+    // === SIPO Shift Register ===
+    sipo sipo_module(
+        .clk(sclk),
+        .rst(sipo_rst),
+        .miso(miso),
+        .shift_en(receive),
+        .data_out(shift_reg)
+    );
+
+    // === Byte Received Detection ===
+    always_ff @(posedge sclk) begin
+        byte_received <= receive && done;
+    end
+
+    // === Received Data Storage ===
+    always_ff @(posedge sclk) begin
+        if (byte_received) begin
+            case (byte_counter)
+                2'd0: received_byte0 <= shift_reg;
+                2'd1: received_byte1 <= shift_reg;
+                2'd2: received_byte2 <= shift_reg;
+                default: ; // Do nothing
+            endcase
+        end
+
+    end
+
+    // === SIPO Control ===
+    assign sipo_rst  = ~receive;
+
+    // ==================================================
+    //                  Display Logic
+    // ==================================================
+    
+    
 
 endmodule
