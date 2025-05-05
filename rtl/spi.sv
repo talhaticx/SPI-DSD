@@ -286,18 +286,15 @@ module spi(
 
     logic temp; // ========================temp================================
 
-    // sclk is used as output so, sclk_inner will be used for the interior purposes
-    logic sclk_inner;
-
     // Instantiation of clk_div Module
     clk_div divider(
         .clk_100mhz(clk),
-        .clk_5mhz(sclk_inner)
+        .clk_5mhz(sclk)
     );
 
     // Instantiation of fsm Module
     fsm control_unit(
-        .sclk(sclk_inner),
+        .sclk(sclk),
         .power(power_btn),
         .done(done),
 
@@ -311,7 +308,7 @@ module spi(
 
     // Instantiation of piso Module
     piso tx_piso (
-        .clk(sclk_inner),
+        .clk(sclk),
         .rst(piso_rst),
         .data_in(current_byte),
         .load(piso_load),
@@ -320,7 +317,7 @@ module spi(
 
     // Instantiation of counter Module
     counter counter(
-        .clk(sclk_inner),
+        .clk(sclk),
         .rst(byte_counter_rst),
         .count(byte_counter)
     );
@@ -338,13 +335,13 @@ module spi(
     end
 
     // done variable logic
-    always_ff @(posedge sclk_inner) begin
+    always_ff @(posedge sclk) begin
         done <= (byte_counter >= data_size[data_select]) ? 1'b1 : 1'b0;
     end
 
     // sclk output
     always_ff @(posedge clk) begin
-        sclk <= sclk_inner;
+        sclk <= sclk;
     end
 
 endmodule
