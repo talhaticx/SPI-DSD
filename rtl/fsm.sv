@@ -7,7 +7,6 @@ module fsm (
     output logic transfer,     // SPI transfer enable (MOSI)
     output logic receive,      // SPI receive enable (MISO)
     output logic cs           // Chip select (Active LOW)
-    // output logic [1:0] data_size // Data size (number of bytes)
 );
 
     // FSM State Encoding
@@ -21,20 +20,20 @@ module fsm (
 
     state_t current_state, next_state;
 
-    // Internal CS control signal
-    // logic cs_internal;
+    // State Register Update
+    always_ff @(posedge clk) begin
+        current_state <= next_state;
+    end
 
     // Next State Logic
     always_comb begin
         next_state = current_state; // Default
 
         case (current_state)
-
             IDLE: begin
                 if (power)
                     next_state = MEASUREMENT_MODE;
-                else
-                    next_state = IDLE;
+                // else stay in IDLE
             end
 
             MEASUREMENT_MODE: begin
@@ -63,35 +62,17 @@ module fsm (
                     next_state = IDLE;
             end
 
+            default: next_state = IDLE; // Safe default
         endcase
     end
 
-    // State Register Update
-    always_ff @(posedge clk) begin
-        current_state <= next_state;
-    end
-
-    // CS Signal Handling
-    // always_ff @(posedge clk) begin
-    //     if (current_state == MEASUREMENT_MODE && done)
-    //         cs_internal <= 1;    // Deassert CS after measurement command done
-    //     else if (current_state == SEND && done)
-    //         cs_internal <= 0;    // Reassert CS before send
-    //     else if (current_state == SOFT_RST)
-    //         cs_internal <= ~cs_internal; // Toggle CS in Soft Reset
-    //     else if (current_state == IDLE)
-    //         cs_internal <= 1;    // Default CS high in idle
-    // end
-
-    // assign cs = cs_internal;
-
     // Output Logic
     always_comb begin
-        // Default outputs
+        // Default outputs (applies to IDLE and any unexpected state)
         data_select = 2'b00;
         transfer    = 0;
         receive     = 0;
-        cs          = 1;
+        cs          = 1;      // Chip select inactive by default
 
         case (current_state)
             MEASUREMENT_MODE: begin
@@ -135,6 +116,9 @@ module fsm (
                     cs          = 0;
                 end
             end
+
+            // IDLE state uses the default outputs
+            // default: uses the default outputs (redundant but explicit)
         endcase
     end
 

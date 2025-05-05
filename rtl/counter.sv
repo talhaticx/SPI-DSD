@@ -1,6 +1,6 @@
 module counter (
     input logic clk,        // Clock input
-    input logic rst,      // Active low reset
+    input logic rst,     
     output logic [1:0] count // 2-bit counter output (counting from 0 to 3)
 );
 

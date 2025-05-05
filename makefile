@@ -5,8 +5,9 @@ BUILD_DIR     := build
 
 # Files
 DESIGN_FILES  := $(wildcard $(RTL_DIR)/*.sv)
+# DESIGN_FILES := rtl/spi.sv
 TB_FILES      := $(wildcard $(TB_DIR)/*.sv)
-VCD_FILE      := $(BUILD_DIR)/wave.vcd
+VCD_FILE      := spi_wave.vcd
 
 # Tools
 VLOG          := vlog

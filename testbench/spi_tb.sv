@@ -1,37 +1,68 @@
-// sample
+`timescale 1ns/1ps
 
 module spi_tb;
-// Define some signals
-reg clk;
-reg rst;
-reg [3:0] data;
 
-// Initialize signals
-initial begin
-    clk = 0;
-    rst = 0;
-    data = 4'b0000;
-end
+    // Testbench signals
+    logic power_btn;
+    logic clk;
+    logic miso;
+    logic mosi;
+    logic cs;
+    logic sclk;
 
-// Clock generation
-always begin
-    #5 clk = ~clk;  // Toggle clock every 5 time units
-end
+    // SPI signals
+    logic done;
+    logic transfer;
+    logic receive;
+    logic [1:0] data_select;
+    logic [1:0] byte_counter;
 
-// Monitor signal changes
-initial begin
-    // Open VCD file to dump the values
-    $dumpfile("build/wave.vcd"); // File where data will be saved
-    $dumpvars(0, clk, rst, data); // Dump these signals
+    // Clock generation
+    initial begin
+        clk = 0;
+        forever #10 clk = ~clk; // 50 MHz clock (20 ns period)
+    end
 
-    // Initialize reset
-    #10 rst = 1;
-    #10 rst = 0;
-    #10 data = 4'b1010;
-    #10 data = 4'b1100;
+    // MISO simulation (could be a random value or some defined input)
+    initial begin
+        miso = 0;
+        #50 miso = 1; // Simulate some incoming data
+        #100 miso = 0;
+    end
 
-    $display("Completed\n");
+    // Instantiate the SPI module
+    spi uut (
+        .power_btn(power_btn),
+        .clk(clk),
+        .miso(miso),
+        .mosi(mosi),
+        .cs(cs),
+        .sclk(sclk)
+    );
 
-    #50 $finish; // Finish the simulation after 50 time units
-end
+    // VCD dump (waveform generation)
+    initial begin
+        $dumpfile("spi_wave.vcd");
+        $dumpvars(0, spi_tb);
+    end
+
+    // Test sequence to simulate SPI communication
+    initial begin
+        power_btn = 0;
+        
+        // Test the SPI transfer process with different commands
+        #500;
+        power_btn = 1; // Power ON
+        #500;
+        
+        // Wait for the transfer to complete
+        #50000; // Allow time for SPI transfer to complete
+        
+        // Power off
+        #50 power_btn = 0;
+        
+        #1000; // Give time to settle before the end
+        $finish;
+    end
+
 endmodule
