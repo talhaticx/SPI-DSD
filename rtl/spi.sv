@@ -264,6 +264,7 @@ module spi(
     logic [7:0] current_byte;
     logic piso_rst, piso_load;
 
+    logic [2:0] byte_counter_dly;
 
     logic [7:0] data_set [0:3][0:2]; // Max 3 bytes per set
 
@@ -336,7 +337,8 @@ module spi(
 
     // done variable logic
     always_ff @(posedge sclk) begin
-        done <= (byte_counter >= data_size[data_select]) ? 1'b1 : 1'b0;
+        byte_counter_dly <= byte_counter;
+        done <= (byte_counter_dly == data_size[data_select] - 1);
     end
 
     // sclk output
