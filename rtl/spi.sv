@@ -35,7 +35,7 @@ endmodule
 module counter (
     input logic clk,        // Clock input
     input logic rst,      // Active low reset
-    output logic [2:0] count // 3-bit counter output (counting from 0 to 5)
+    output logic [1:0] count // 2-bit counter output (counting from 0 to 3)
 );
 
     logic [2:0] cycle_count; // 3-bit counter to count 8 cycles
@@ -43,7 +43,7 @@ module counter (
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
             cycle_count <= 3'b0; // Reset cycle counter
-            count <= 3'b0;        // Reset byte counter
+            count <= 2'b0;        // Reset byte counter
         end
         else begin
             if (cycle_count == 7) begin // After 8 cycles (counting from 0 to 7)
@@ -253,7 +253,7 @@ module spi(
     logic [1:0] data_select;
     // logic [2:0] data_size;
 
-    logic [2:0] byte_counter;
+    logic [1:0] byte_counter;
 
     logic byte_counter_rst;
 
@@ -264,7 +264,7 @@ module spi(
     logic [7:0] current_byte;
     logic piso_rst, piso_load;
 
-    logic [2:0] byte_counter_dly;
+    logic [1:0] byte_counter_dly;
 
     logic [7:0] data_set [0:3][0:2]; // Max 3 bytes per set
 
@@ -345,5 +345,16 @@ module spi(
     always_ff @(posedge clk) begin
         sclk <= sclk;
     end
+
+    always_ff @(posedge sclk) begin
+        // Load next byte when byte_counter increments
+        if (transfer) begin
+            current_byte <= data_set[data_select][byte_counter];
+        end
+    end
+
+    // Pulse signals
+    assign piso_rst  = byte_counter_rst;
+    assign piso_load = (byte_counter == 0) && transfer_posedge;
 
 endmodule
