@@ -22,7 +22,7 @@ module fsm (
     state_t current_state, next_state;
 
     // Internal CS control signal
-    logic cs_internal;
+    // logic cs_internal;
 
     // Next State Logic
     always_comb begin
@@ -72,64 +72,69 @@ module fsm (
     end
 
     // CS Signal Handling
-    always_ff @(posedge clk) begin
-        if (current_state == MEASUREMENT_MODE && done)
-            cs_internal <= 1;    // Deassert CS after measurement command done
-        else if (current_state == SEND && done)
-            cs_internal <= 0;    // Reassert CS before send
-        else if (current_state == SOFT_RST)
-            cs_internal <= ~cs_internal; // Toggle CS in Soft Reset
-        else if (current_state == IDLE)
-            cs_internal <= 1;    // Default CS high in idle
-    end
+    // always_ff @(posedge clk) begin
+    //     if (current_state == MEASUREMENT_MODE && done)
+    //         cs_internal <= 1;    // Deassert CS after measurement command done
+    //     else if (current_state == SEND && done)
+    //         cs_internal <= 0;    // Reassert CS before send
+    //     else if (current_state == SOFT_RST)
+    //         cs_internal <= ~cs_internal; // Toggle CS in Soft Reset
+    //     else if (current_state == IDLE)
+    //         cs_internal <= 1;    // Default CS high in idle
+    // end
 
-    assign cs = cs_internal;
+    // assign cs = cs_internal;
 
     // Output Logic
     always_comb begin
-        // Default values
+        // Default outputs
         data_select = 2'b00;
-        transfer = 0;
-        receive = 0;
-        // data_size = 2'd0;
+        transfer    = 0;
+        receive     = 0;
+        cs          = 1;
 
         case (current_state)
-
-            IDLE: begin
-                data_select = 2'b00;
-                transfer = 0;
-                receive = 0;
-                // data_size = 2'd0;
-            end
-
             MEASUREMENT_MODE: begin
-                data_select = 2'b01;
-                transfer = 1;
-                receive = 0;
-                // data_size = 2'd3;
+                if (done) begin
+                    // Wait state after sending measurement command
+                    cs = 1;
+                end else begin
+                    data_select = 2'b01;
+                    transfer    = 1;
+                    cs          = 0;
+                end
             end
 
             SEND: begin
-                data_select = 2'b10;
-                transfer = 1;
-                receive = 0;
-                // data_size = 2'd2;
+                if (done) begin
+                    cs = 0;  // keep CS low between SEND and RECEIVE
+                end else begin
+                    data_select = 2'b10;
+                    transfer    = 1;
+                    cs          = 0;
+                end
             end
 
             RECEIVE: begin
-                data_select = 2'b00; // Dummy data (0x00)
-                transfer = 1;
-                receive = 1;
-                // data_size = 2'd3;
+                if (done) begin
+                    cs = 1;  // finish transfer
+                end else begin
+                    data_select = 2'b00; // Dummy byte
+                    transfer    = 1;
+                    receive     = 1;
+                    cs          = 0;
+                end
             end
 
             SOFT_RST: begin
-                data_select = 2'b11;
-                transfer = 1;
-                receive = 0;
-                // data_size = 2'd3;
+                if (done) begin
+                    cs = 1;
+                end else begin
+                    data_select = 2'b11;
+                    transfer    = 1;
+                    cs          = 0;
+                end
             end
-
         endcase
     end
 
