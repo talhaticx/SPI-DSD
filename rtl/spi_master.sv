@@ -4,7 +4,12 @@ module spi_master(
     input  logic       miso,      // MISO - Master In Slave Out
     output logic       mosi,      // MOSI - Master Out Slave In
     output logic       cs,        // Chip Select (Active Low)
-    output logic       sclk       // Serial Clock (5MHz)
+    output logic       sclk,      // Serial Clock (5MHz)
+
+    output logic [6:0] seg,       // 7 - Segment Data
+    output logic [5:0] an,        // Anode Selector
+
+    output logic dp0, dp2, dp4    // Decimal Point (for sign) 
 );
 
     logic done;
@@ -156,7 +161,55 @@ module spi_master(
     // ==================================================
     //                  Display Logic
     // ==================================================
-    
 
+    logic display_clk;
+    
+    logic [6:0] seg_x_high, seg_x_low;
+    logic [6:0] seg_y_high, seg_y_low;
+    logic [6:0] seg_z_high, seg_z_low;
+
+    // === Display Frequency Divider ===
+    freq_div display_clk_module(
+        .clk(clk),
+        .rst(!power_btn),
+        .clk_out(display_clk)
+    );
+
+    // === XDATA Decoder ===
+    seven_seg_8bit_display display_x(
+        .data_in(received_byte0),
+        .seg_high(seg_x_high),
+        .seg_low(seg_x_low),
+        .dp_high(dp0)
+    );
+
+    // === YDATA Decoder ===
+    seven_seg_8bit_display display_y(
+        .data_in(received_byte1),
+        .seg_high(seg_y_high),
+        .seg_low(seg_y_low),
+        .dp_high(dp2)
+    );
+
+    // === ZDATA Decoder ===
+    seven_seg_8bit_display display_z(
+        .data_in(received_byte2),
+        .seg_high(seg_z_high),
+        .seg_low(seg_z_low),
+        .dp_high(dp4)
+    );
+
+
+    seven_seg_mux display_mux(
+        .clk(display_clk),  // from your freq_div module
+        .seg0(seg_x_high),
+        .seg1(seg_x_low),
+        .seg2(seg_y_high),
+        .seg3(seg_y_low),
+        .seg4(seg_z_high),
+        .seg5(seg_z_low),
+        .seg(seg),
+        .an(an)
+    );
 
 endmodule
