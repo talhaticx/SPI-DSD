@@ -22,7 +22,6 @@ module spi_master(
     logic       piso_rst, piso_load;
     logic       sipo_rst;
 
-    logic [7:0] shift_reg;
     logic [1:0] data_size [3:0];
     logic [7:0] data_set [0:3][0:2]; // 3-byte max per command
 
@@ -73,6 +72,7 @@ module spi_master(
         .rst(piso_rst),
         .data_in(current_byte),
         .load(piso_load),
+        .shift_en(transfer),
         .mosi(mosi)
     );
 
@@ -107,7 +107,7 @@ module spi_master(
     // === Done signal ===
     assign done = (byte_counter == data_size[data_select]);
 
-    // Add a synchronization flip-flop
+    // Adding a synchronization flip-flop
     always_ff @(posedge clk) begin
         done_synced <= done;
     end
@@ -117,6 +117,7 @@ module spi_master(
     // ==================================================
 
     // === Received Data Registers ===
+    logic [7:0] shift_reg;
     logic [7:0] received_byte0;
     logic [7:0] received_byte1;
     logic [7:0] received_byte2;
@@ -156,6 +157,6 @@ module spi_master(
     //                  Display Logic
     // ==================================================
     
-    
+
 
 endmodule
