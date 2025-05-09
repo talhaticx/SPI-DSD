@@ -20,7 +20,7 @@ module spi_master(
     logic [1:0] data_select;
 
     logic [1:0] byte_counter;
-    logic       byte_counter_rst;
+    // logic       byte_counter_rst;
 
     logic       transfer_prev, transfer_posedge;
 
@@ -33,9 +33,9 @@ module spi_master(
 
     initial begin
         data_set[0] = '{8'h00, 8'h00, 8'h00}; // Dummy
-        data_set[1] = '{8'h0A, 8'h2D, 8'h02}; // Set range
-        data_set[2] = '{8'h0B, 8'h08, 8'h00}; // Disable FIFO (2-byte)
-        data_set[3] = '{8'h0A, 8'h1F, 8'h52}; // Measurement mode
+        data_set[1] = '{8'h0A, 8'h2D, 8'h02}; // Measurement mode
+        data_set[2] = '{8'h0B, 8'h08, 8'h00}; // Read Cmd
+        data_set[3] = '{8'h0A, 8'h1F, 8'h52}; // Soft reset
 
         data_size[0] = 3;
         data_size[1] = 3;
@@ -68,7 +68,7 @@ module spi_master(
     // === Counter ===
     counter byte_counter_module(
         .clk(sclk),
-        .rst(byte_counter_rst),
+        .rst(~transfer),
         .count(byte_counter)
     );
 
@@ -103,18 +103,18 @@ module spi_master(
     assign piso_rst  = ~transfer;
 
     // === Byte Counter Reset ===
-    always_ff @(posedge sclk) begin
-        if (!transfer)
-            byte_counter_rst <= 1;
-        else
-            byte_counter_rst <= 0;
-    end
+    // always_ff @(posedge sclk) begin
+    //     if (!transfer)
+    //         byte_counter_rst <= 1;
+    //     else
+    //         byte_counter_rst <= 0;
+    // end
 
     // === Done signal ===
     assign done = (byte_counter == data_size[data_select]);
 
     // Adding a synchronization flip-flop
-    always_ff @(posedge clk) begin
+    always_ff @(posedge sclk) begin
         done_synced <= done;
     end
 
