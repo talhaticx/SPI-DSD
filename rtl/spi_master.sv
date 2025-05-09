@@ -2,6 +2,7 @@ module spi_master(
     input  logic       power_btn, // Power control button
     input  logic       clk,       // 100MHz main clock
     input  logic       miso,      // MISO - Master In Slave Out
+
     output logic       mosi,      // MOSI - Master Out Slave In
     output logic       cs,        // Chip Select (Active Low)
     output logic       sclk,      // Serial Clock (5MHz)
@@ -89,12 +90,12 @@ module spi_master(
 
     // === Byte Transfer Logic ===
     always_ff @(posedge sclk) begin
-        if (transfer_posedge) begin
+        // if (transfer_posedge) begin
             if (byte_counter < data_size[data_select])
                 current_byte <= data_set[data_select][byte_counter];
             else
                 current_byte <= 8'h00; // Dummy byte if out of range
-        end
+        // end
     end
 
     // === PISO Control ===

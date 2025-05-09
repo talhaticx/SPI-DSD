@@ -23,13 +23,6 @@ module spi_tb;
         forever #10 clk = ~clk; // 50 MHz clock (20 ns period)
     end
 
-    // MISO simulation (could be a random value or some defined input)
-    initial begin
-        miso = 0;
-        #50 miso = 1; // Simulate some incoming data
-        #100 miso = 0;
-    end
-
     // Instantiate the SPI module
     spi_master uut (
         .power_btn(power_btn),
@@ -56,12 +49,12 @@ module spi_tb;
         #500;
         
         // Wait for the transfer to complete
-        #50000; // Allow time for SPI transfer to complete
+        #100_000; // Allow time for SPI transfer to complete
         
         // Power off
         #50 power_btn = 0;
         
-        #1000; // Give time to settle before the end
+        #10_000; // Give time to settle before the end
         $finish;
     end
 
