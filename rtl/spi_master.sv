@@ -1,5 +1,5 @@
 module spi_master(
-    input  logic       power_btn, // Power control button
+    input  logic       active_btn, // active control button
     input  logic       clk,       // 100MHz main clock
     input  logic       miso,      // MISO - Master In Slave Out
 
@@ -50,14 +50,14 @@ module spi_master(
     // === Clock Divider ===
     clk_div divider(
         .clk_100mhz(clk),
-        .reset(! power_btn),
+        .reset(! active_btn),
         .clk_5mhz(sclk)
     );
 
     // === FSM ===
     fsm control_unit(
         .clk(sclk),
-        .power(power_btn),
+        .active(active_btn),
         .done(done_synced),
         .data_select(data_select),
         .transfer(transfer),
@@ -172,7 +172,7 @@ module spi_master(
     // === Display Frequency Divider ===
     freq_div display_clk_module(
         .clk(clk),
-        .rst(!power_btn),
+        .rst(!active_btn),
         .clk_out(display_clk)
     );
 

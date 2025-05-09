@@ -1,12 +1,12 @@
 module fsm (
     input logic clk,           // Clock input
-    input logic power,         // Power switch
+    input logic active,        // active switch
     input logic done,          // Done signal from SPI transfer
 
     output logic [1:0] data_select, // SPI command selector
     output logic transfer,     // SPI transfer enable (MOSI)
     output logic receive,      // SPI receive enable (MISO)
-    output logic cs           // Chip select (Active LOW)
+    output logic cs            // Chip select (Active LOW)
 );
 
     // FSM State Encoding
@@ -31,27 +31,27 @@ module fsm (
 
         case (current_state)
             IDLE: begin
-                if (power)
+                if (active)
                     next_state = MEASUREMENT_MODE;
                 // else stay in IDLE
             end
 
             MEASUREMENT_MODE: begin
-                if (!power)
+                if (!active)
                     next_state = SOFT_RST;
                 else if (done)
                     next_state = SEND;
             end
 
             SEND: begin
-                if (!power)
+                if (!active)
                     next_state = SOFT_RST;
                 else if (done)
                     next_state = RECEIVE;
             end
 
             RECEIVE: begin
-                if (!power)
+                if (!active)
                     next_state = SOFT_RST;
                 else if (done)
                     next_state = SEND;
