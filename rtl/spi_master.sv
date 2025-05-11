@@ -29,7 +29,7 @@ module spi_master(
     logic       piso_rst, piso_load;
     logic       sipo_rst;
 
-    logic tx;
+    logic tx, tx_synced;
 
     logic [1:0] data_size [4:0];
     logic [7:0] data_set [0:3][0:2]; // 3-byte max per command
@@ -55,7 +55,6 @@ module spi_master(
     // === Clock Divider ===
     clk_div divider(
         .clk_in(clk),
-        // .reset(!active_btn),
         .clk_out(sclk)
     );
 
@@ -88,25 +87,10 @@ module spi_master(
         .rst(piso_rst),
         .data_in(current_byte),
         .load(piso_load),
-        .shift_en(tx),
+        .shift_en(tx_synced),
         .mosi(mosi)
+        // .bit_cnt(bit_counter)
     );
-
-    // === Transfer Edge Detection ===
-    // always_ff @(posedge sclk) begin
-    //     transfer_prev <= transfer;
-    // end
-    // assign transfer_posedge = (bit_counter == 0) ? 1'b1 : 1'b0;
-
-    // === Byte Transfer Logic ===
-    // always_ff @(posedge sclk) begin
-    //     // if (transfer_posedge) begin
-    //         if (byte_counter < data_size[data_select])
-    //             current_byte <= data_set[data_select][byte_counter];
-    //         else
-    //             current_byte <= 8'h00; // Dummy byte if out of range
-    //     // end
-    // end
 
     logic [1:0] safe_sel;
 
@@ -123,22 +107,16 @@ module spi_master(
     assign piso_load = (bit_counter == 0) ? 1'b1 : 1'b0;
     assign piso_rst  = ~tx;
 
-    // === Byte Counter Reset ===
-    // always_ff @(posedge sclk) begin
-    //     if (!transfer)
-    //         byte_counter_rst <= 1;
-    //     else
-    //         byte_counter_rst <= 0;
-    // end
-
     // === Done signal ===
-    // assign done = (byte_counter == data_size[data_select]);
     assign done = (byte_counter >= data_size[data_select] - 1) && (bit_counter == 3'd7);
-    // assign done = (byte_counter >= data_size[data_select]);
 
     // Adding a synchronization flip-flop
     always_ff @(posedge sclk) begin
         done_synced <= done;
+    end
+
+    always_ff @(posedge sclk) begin
+        tx_synced <= tx;
     end
 
     // ==================================================
