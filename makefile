@@ -32,7 +32,7 @@ sim: compile
 	$(VSIM) -work $(BUILD_DIR) $(VSIM_FLAGS) $(TOP_MODULE)
 
 wave:
-	$(GTKWAVE) $(VCD_FILE)
+	$(GTKWAVE) $(VCD_FILE) myview.sav
 
 run: sim wave
 

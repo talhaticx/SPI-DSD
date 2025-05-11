@@ -17,18 +17,21 @@ module spi_master(
     logic done_synced;
 
     logic transfer, receive;
-    logic [1:0] data_select;
+    logic [2:0] data_select;
 
     logic [1:0] byte_counter;
-    // logic       byte_counter_rst;
+    logic [2:0] bit_counter;
+    logic       byte_counter_rst;
 
-    logic       transfer_prev, transfer_posedge;
+    // logic       transfer_prev, transfer_posedge;
 
     logic [7:0] current_byte;
     logic       piso_rst, piso_load;
     logic       sipo_rst;
 
-    logic [1:0] data_size [3:0];
+    logic tx;
+
+    logic [1:0] data_size [4:0];
     logic [7:0] data_set [0:3][0:2]; // 3-byte max per command
 
     initial begin
@@ -41,6 +44,8 @@ module spi_master(
         data_size[1] = 3;
         data_size[2] = 2;
         data_size[3] = 3;
+
+        data_size[4] = 0;
     end
 
     // ==================================================
@@ -49,28 +54,33 @@ module spi_master(
 
     // === Clock Divider ===
     clk_div divider(
-        .clk_100mhz(clk),
-        .reset(! active_btn),
-        .clk_5mhz(sclk)
+        .clk_in(clk),
+        // .reset(!active_btn),
+        .clk_out(sclk)
     );
 
     // === FSM ===
     fsm control_unit(
         .clk(sclk),
-        .active(active_btn),
+        .reset(!active_btn),
         .done(done_synced),
         .data_select(data_select),
         .transfer(transfer),
         .receive(receive),
-        .cs(cs)
+        .cs(cs),
+        .byte_reset(byte_counter_rst)
     );
 
     // === Counter ===
     counter byte_counter_module(
         .clk(sclk),
-        .rst(~transfer),
-        .count(byte_counter)
+        .rst(!active_btn || byte_counter_rst),
+        .rst_byte(done_synced),
+        .byte_counter(byte_counter),
+        .bit_counter(bit_counter)
     );
+
+    assign tx = !(!active_btn || byte_counter_rst) && transfer;
 
     // === PISO Shift Register ===
     piso piso_module(
@@ -78,29 +88,40 @@ module spi_master(
         .rst(piso_rst),
         .data_in(current_byte),
         .load(piso_load),
-        .shift_en(transfer),
+        .shift_en(tx),
         .mosi(mosi)
     );
 
     // === Transfer Edge Detection ===
-    always_ff @(posedge sclk) begin
-        transfer_prev <= transfer;
-    end
-    assign transfer_posedge = transfer & ~transfer_prev;
+    // always_ff @(posedge sclk) begin
+    //     transfer_prev <= transfer;
+    // end
+    // assign transfer_posedge = (bit_counter == 0) ? 1'b1 : 1'b0;
 
     // === Byte Transfer Logic ===
-    always_ff @(posedge sclk) begin
-        // if (transfer_posedge) begin
-            if (byte_counter < data_size[data_select])
-                current_byte <= data_set[data_select][byte_counter];
-            else
-                current_byte <= 8'h00; // Dummy byte if out of range
-        // end
-    end
+    // always_ff @(posedge sclk) begin
+    //     // if (transfer_posedge) begin
+    //         if (byte_counter < data_size[data_select])
+    //             current_byte <= data_set[data_select][byte_counter];
+    //         else
+    //             current_byte <= 8'h00; // Dummy byte if out of range
+    //     // end
+    // end
+
+    logic [1:0] safe_sel;
+
+    assign safe_sel = (data_select == 3'b100) ? 2'b00 : data_select[1:0];
+
+
+    assign current_byte = (byte_counter < data_size[data_select]) ?
+                        data_set[safe_sel][byte_counter] :
+                        8'h00;
+
+
 
     // === PISO Control ===
-    assign piso_load = transfer_posedge;
-    assign piso_rst  = ~transfer;
+    assign piso_load = (bit_counter == 0) ? 1'b1 : 1'b0;
+    assign piso_rst  = ~tx;
 
     // === Byte Counter Reset ===
     // always_ff @(posedge sclk) begin
@@ -111,7 +132,9 @@ module spi_master(
     // end
 
     // === Done signal ===
-    assign done = (byte_counter == data_size[data_select]);
+    // assign done = (byte_counter == data_size[data_select]);
+    assign done = (byte_counter >= data_size[data_select] - 1) && (bit_counter == 3'd7);
+    // assign done = (byte_counter >= data_size[data_select]);
 
     // Adding a synchronization flip-flop
     always_ff @(posedge sclk) begin

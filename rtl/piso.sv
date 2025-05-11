@@ -16,7 +16,7 @@ module piso (
             bit_cnt   <= 3'd0;
         end else if (load) begin
             shift_reg <= data_in;
-            bit_cnt   <= 3'd0;
+            // bit_cnt   <= 3'd0;
         end else if (shift_en) begin
             shift_reg <= {shift_reg[6:0], 1'b0};
             bit_cnt   <= bit_cnt + 1;

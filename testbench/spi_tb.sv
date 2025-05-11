@@ -51,17 +51,25 @@ module spi_tb;
     initial begin
         active_btn = 0;
         
-        #200; // 2 sclk cycles
+        #600; // 2 sclk cycles
 
         active_btn = 1; // Power ON
+
+        #5000;
         
+        active_btn = 0;
+        
+        #600; // 2 sclk cycles
+
+        active_btn = 1; // Power ON
+
         // Wait for the transfer to complete
-        #100_000; // Allow time for SPI transfer to complete
+        #30_000; // Allow time for SPI transfer to complete
         
         // Power off
-        #50 active_btn = 0;
+        active_btn = 0;
         
-        #10_000; // Give time to settle before the end
+        #5000; // Give time to settle before the end
         $finish;
     end
 
