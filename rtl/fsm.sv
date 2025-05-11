@@ -1,6 +1,6 @@
 module fsm (
     input logic clk,           // Clock input
-    input logic active,        // active switch
+    input logic reset,        // active switch
     input logic done,          // Done signal from SPI transfer
 
     output logic [1:0] data_select, // SPI command selector
@@ -22,8 +22,12 @@ module fsm (
 
     // State Register Update
     always_ff @(posedge clk) begin
+        if (reset)
+            current_state <= SOFT_RST;
+        else
         current_state <= next_state;
     end
+
 
     // Next State Logic
     always_comb begin
@@ -31,27 +35,27 @@ module fsm (
 
         case (current_state)
             IDLE: begin
-                if (active)
+                // if (active)
                     next_state = MEASUREMENT_MODE;
                 // else stay in IDLE
             end
 
             MEASUREMENT_MODE: begin
-                if (!active)
+                if (reset)
                     next_state = SOFT_RST;
                 else if (done)
                     next_state = SEND;
             end
 
             SEND: begin
-                if (!active)
+                if (reset)
                     next_state = SOFT_RST;
                 else if (done)
                     next_state = RECEIVE;
             end
 
             RECEIVE: begin
-                if (!active)
+                if (reset)
                     next_state = SOFT_RST;
                 else if (done)
                     next_state = SEND;
@@ -76,7 +80,7 @@ module fsm (
 
         case (current_state)
             MEASUREMENT_MODE: begin
-                if (done) begin
+                if (done || reset) begin
                     // Wait state after sending measurement command
                     cs = 1;
                 end else begin
@@ -87,17 +91,13 @@ module fsm (
             end
 
             SEND: begin
-                if (done) begin
-                    cs = 0;  // keep CS low between SEND and RECEIVE
-                end else begin
+                cs = 0;
                     data_select = 2'b10;
                     transfer    = 1;
-                    cs          = 0;
-                end
             end
 
             RECEIVE: begin
-                if (done) begin
+                if (done || reset) begin
                     cs = 1;  // finish transfer
                 end else begin
                     data_select = 2'b00; // Dummy byte
