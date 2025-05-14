@@ -10,7 +10,9 @@ module spi_master(
     output logic [6:0] seg,       // 7 - Segment Data
     output logic [5:0] an,        // Anode Selector
 
-    output logic dp0, dp2, dp4    // Decimal Point (for sign) 
+    output logic dpx, dpy, dpz,    // Decimal Point (for sign) 
+
+    output logic rx_debug
 );
 
     logic done;
@@ -19,8 +21,8 @@ module spi_master(
     logic transfer, receive;
     logic [2:0] data_select;
 
-    logic [1:0] byte_counter;
-    logic [2:0] bit_counter;
+    logic [1:0] byte_counter, byte_counter_synced;
+    logic [2:0] bit_counter, bit_counter_synced;
     logic       byte_counter_rst;
 
     // logic       transfer_prev, transfer_posedge;
@@ -30,11 +32,15 @@ module spi_master(
     logic       sipo_rst;
 
     logic tx, tx_synced;
+    logic rx, cs_synced;
 
     logic [1:0] data_size [4:0];
     logic [7:0] data_set [0:3][0:2]; // 3-byte max per command
 
-    initial begin
+    logic [2:0] display_count;
+    logic [2:0] temp_count = 0;
+
+    always_comb begin
         data_set[0] = '{8'h00, 8'h00, 8'h00}; // Dummy
         data_set[1] = '{8'h0A, 8'h2D, 8'h02}; // Measurement mode
         data_set[2] = '{8'h0B, 8'h08, 8'h00}; // Read Cmd
@@ -66,15 +72,15 @@ module spi_master(
         .data_select(data_select),
         .transfer(transfer),
         .receive(receive),
-        .cs(cs),
+        .cs(cs_synced),
         .byte_reset(byte_counter_rst)
     );
 
     // === Counter ===
     counter byte_counter_module(
         .clk(sclk),
-        .rst(!active_btn || byte_counter_rst),
-        .rst_byte(done_synced),
+        .rst(!active_btn || byte_counter_rst || done_synced),
+        // .rst_byte(done_synced),
         .byte_counter(byte_counter),
         .bit_counter(bit_counter)
     );
@@ -101,8 +107,6 @@ module spi_master(
                         data_set[safe_sel][byte_counter] :
                         8'h00;
 
-
-
     // === PISO Control ===
     assign piso_load = (bit_counter == 0) ? 1'b1 : 1'b0;
     assign piso_rst  = ~tx;
@@ -110,13 +114,14 @@ module spi_master(
     // === Done signal ===
     assign done = (byte_counter >= data_size[data_select] - 1) && (bit_counter == 3'd7);
 
+    assign rx_debug = rx;
+
     // Adding a synchronization flip-flop
     always_ff @(posedge sclk) begin
         done_synced <= done;
-    end
-
-    always_ff @(posedge sclk) begin
         tx_synced <= tx;
+        rx <= receive;
+        cs <= cs_synced;
     end
 
     // ==================================================
@@ -133,16 +138,15 @@ module spi_master(
     // === SIPO Shift Register ===
     sipo sipo_module(
         .clk(sclk),
-        .rst(sipo_rst),
+        // .rst(sipo_rst),
         .miso(miso),
-        .shift_en(receive),
+        .shift_en(rx),
         .data_out(shift_reg)
     );
 
     // === Byte Received Detection ===
-    always_ff @(posedge sclk) begin
-        byte_received <= receive && done;
-    end
+    assign byte_received = rx && (bit_counter == 7);
+
 
     // === Received Data Storage ===
     always_ff @(posedge sclk) begin
@@ -157,8 +161,13 @@ module spi_master(
 
     end
 
-    // === SIPO Control ===
-    assign sipo_rst  = ~receive;
+    // counter byte_counter_synced_module(
+    //     .clk(sclk),
+    //     .rst(!tx_synced),
+    //     // .rst_byte(done_synced),
+    //     .byte_counter(byte_counter_synced),
+    //     .bit_counter(bit_counter_synced)
+    // );
 
     // ==================================================
     //                  Display Logic
@@ -182,7 +191,7 @@ module spi_master(
         .data_in(received_byte0),
         .seg_high(seg_x_high),
         .seg_low(seg_x_low),
-        .dp_high(dp0)
+        .dp_high(dpx)
     );
 
     // === YDATA Decoder ===
@@ -190,7 +199,7 @@ module spi_master(
         .data_in(received_byte1),
         .seg_high(seg_y_high),
         .seg_low(seg_y_low),
-        .dp_high(dp2)
+        .dp_high(dpy)
     );
 
     // === ZDATA Decoder ===
@@ -198,12 +207,22 @@ module spi_master(
         .data_in(received_byte2),
         .seg_high(seg_z_high),
         .seg_low(seg_z_low),
-        .dp_high(dp4)
+        .dp_high(dpz)
     );
 
+    always_ff @(posedge display_clk) begin
+        if (temp_count == 3'd5) begin
+            temp_count <= 3'd0;
+            display_count <= temp_count;
+        end
+        else begin
+            temp_count <= temp_count + 1;
+            display_count <= temp_count;
+        end
+    end
 
     seven_seg_mux display_mux(
-        .clk(display_clk),  // from your freq_div module
+        .sel(display_count),  // from your freq_div module
         .seg0(seg_x_high),
         .seg1(seg_x_low),
         .seg2(seg_y_high),

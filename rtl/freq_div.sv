@@ -17,7 +17,7 @@ module freq_div (
             count <= 0;
             clk_out <= 0;
         end 
-        else if (count == 499_99) begin
+        else if (count == 499) begin // 49999
             count <= 0;
             clk_out <= ~clk_out; // Toggle output
         end 

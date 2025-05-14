@@ -1,13 +1,13 @@
 module counter (
     input logic clk,        // Clock input
-    input logic rst, rst_byte,
+    input logic rst,
     output logic [1:0] byte_counter, // 2-bit counter output (counting from 0 to 3)
     output logic [2:0] bit_counter
 );
 
 
     always_ff @(posedge clk or posedge rst) begin
-        if (rst || rst_byte) begin
+        if (rst) begin
             bit_counter <= 3'b0; // Reset cycle counter
             byte_counter <= 2'b0;        // Reset byte counter
         end

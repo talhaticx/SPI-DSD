@@ -9,23 +9,27 @@ module spi_tb;
     logic mosi;
     logic cs;
     logic sclk;
+    logic rx; // Output from DUT
 
     logic [6:0] seg;
     logic [3:0] an;
-    logic dp0, dp2, dp4;
-
-    // // SPI signals
-    // logic done;
-    // logic transfer;
-    // logic receive;
-    // logic [1:0] data_select;
-    // logic [1:0] byte_counter;
+    logic dpx, dpy, dpz;
 
     // Clock generation
     initial begin
         clk = 0;
-        forever #5 clk = ~clk; // 50 MHz clock (20 ns period)
+        forever #5 clk = ~clk; // 50 MHz
     end
+
+    // MISO toggles only when rx == 1
+    always_ff @(posedge sclk) begin
+        if (rx && !cs)
+            miso <= ~miso;
+        else
+            miso <= 0;
+    end
+
+
 
     spi_master uut (
         .active_btn(active_btn),
@@ -36,40 +40,33 @@ module spi_tb;
         .sclk(sclk),
         .seg(seg),
         .an(an),
-        .dp0(dp0),
-        .dp2(dp2),
-        .dp4(dp4)
+        .dpx(dpx),
+        .dpy(dpy),
+        .dpz(dpz),
+        .rx_debug(rx) // Connect rx output
     );
 
-    // VCD dump (waveform generation)
+    // Test sequence
     initial begin
         $dumpfile("spi_wave.vcd");
         $dumpvars(0, spi_tb);
-    end
 
-    // Test sequence to simulate SPI communication
-    initial begin
         active_btn = 0;
-        
-        #600; // 2 sclk cycles
+        // miso = 0;
 
-        active_btn = 1; // Power ON
-
+        #400;
+        active_btn = 1;
         #5000;
-        
-        active_btn = 0;
-        
-        #600; // 2 sclk cycles
 
-        active_btn = 1; // Power ON
-
-        // Wait for the transfer to complete
-        #30_000; // Allow time for SPI transfer to complete
-        
-        // Power off
         active_btn = 0;
-        
-        #5000; // Give time to settle before the end
+        #600;
+
+        active_btn = 1;
+        #30_000;
+
+        active_btn = 0;
+        #5000;
+
         $finish;
     end
 

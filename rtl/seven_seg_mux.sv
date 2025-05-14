@@ -1,18 +1,12 @@
 module seven_seg_mux (
-    input  logic        clk,         // Slower display clock
+    input  logic [2:0]  sel,         // Slower display clock
     input  logic [6:0]  seg0, seg1, seg2, seg3, seg4, seg5,
     output logic [6:0]  seg,         // Common segment output
     output logic [5:0]  an           // Active low anode
 );
 
-    logic [2:0] digit_sel;
-
-    always_ff @(posedge clk) begin
-        digit_sel <= digit_sel + 1;
-    end
-
     always_comb begin
-        case (digit_sel)
+        case (sel)
             3'd0: begin seg = seg0; an = 6'b111110; end
             3'd1: begin seg = seg1; an = 6'b111101; end
             3'd2: begin seg = seg2; an = 6'b111011; end
