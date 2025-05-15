@@ -12,7 +12,7 @@ module spi_tb;
     logic rx; // Output from DUT
 
     logic [6:0] seg;
-    logic [3:0] an;
+    logic [5:0] an;
     logic dpx, dpy, dpz;
 
     // Clock generation
@@ -62,7 +62,7 @@ module spi_tb;
         #600;
 
         active_btn = 1;
-        #30_000;
+        #10_000_000;
 
         active_btn = 0;
         #5000;
